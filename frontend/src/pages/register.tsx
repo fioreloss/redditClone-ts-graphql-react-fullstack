@@ -5,6 +5,7 @@ import { Wrapper } from '../components/Wrapper';
 import { InputField } from '../components/InputField';
 import { useRegisterMutation } from '../generated/graphql';
 import { toErrorMap } from '../uitls/toErrorMap';
+import { useRouter } from 'next/dist/client/router';
 
 
 
@@ -16,6 +17,7 @@ interface registerProps {
 
 
 const Register: React.FC<registerProps> = ({ }) => {
+    const router = useRouter();
     const [, register] = useRegisterMutation();
     return (
         <Wrapper variant='small'>
@@ -23,8 +25,9 @@ const Register: React.FC<registerProps> = ({ }) => {
                 onSubmit={ async (values,{setErrors}) => {
                     const response = await register(values);
                     if (response.data?.register.errors) {
-                        setErrors(toErrorMap(response.data.register.errors))
-                        
+                        setErrors(toErrorMap(response.data.register.errors))   
+                    } else if (response.data?.register.user) {
+                        router.push('/')
                     }
                 }}>
                 {({isSubmitting }) => (
@@ -35,7 +38,7 @@ const Register: React.FC<registerProps> = ({ }) => {
                             label="Username" />
                         <Box mt={4}>
                         <InputField
-                            name="passowrd"
+                            name="password"
                             placeholder="password"
                             label="password"
                             type="password"
