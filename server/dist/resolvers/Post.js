@@ -26,7 +26,9 @@ const Posts_1 = require("./../entities/Posts");
 const type_graphql_1 = require("type-graphql");
 let PostResolver = class PostResolver {
     posts({ em }) {
-        return em.find(Posts_1.Post, {});
+        return __awaiter(this, void 0, void 0, function* () {
+            return em.find(Posts_1.Post, {});
+        });
     }
     post(id, { em }) {
         return em.findOne(Posts_1.Post, { id });
