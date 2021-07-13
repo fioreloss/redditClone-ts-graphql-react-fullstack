@@ -1,3 +1,4 @@
+
 import { MyContext } from 'src/types';
 import "reflect-metadata";
 import { MikroORM } from '@mikro-orm/core'
@@ -12,10 +13,14 @@ import cors from 'cors'
 import redis from 'redis';
 import session from 'express-session';
 import connectRedis from 'connect-redis'
+//import { User } from './entities/User';
+// import { sendEmail } from './utils/sendEmail';
 
 const main = async () => {
+
     
     const orm = await MikroORM.init(microConfig);
+    
     await orm.getMigrator().up();
 
     const app = express();
