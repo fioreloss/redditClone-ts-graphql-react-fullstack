@@ -1,26 +1,32 @@
-import { MyContext } from 'src/types';
-import "reflect-metadata";
-import { MikroORM } from '@mikro-orm/core'
-import { __prod__, COOKIE_NAME } from './constants';
-import microConfig from './mikro-orm.config'
+import { ApolloServer } from 'apollo-server-express';
+import connectRedis from 'connect-redis';
+import cors from 'cors';
 import express from 'express';
-import {ApolloServer} from 'apollo-server-express'
+import session from 'express-session';
+import Redis from 'ioredis';
+import "reflect-metadata";
+import { MyContext } from 'src/types';
 import { buildSchema } from 'type-graphql';
+import { createConnection } from 'typeorm';
+import { COOKIE_NAME, __prod__ } from './constants';
+import { Post } from './entities/posts';
+import { User } from './entities/User';
 import { PostResolver } from './resolvers/Post';
 import { UserResolver } from "./resolvers/User";
-import cors from 'cors'
-import Redis from 'ioredis';
-import session from 'express-session';
-import connectRedis from 'connect-redis'
-//import { User } from './entities/User';
-// import { sendEmail } from './utils/sendEmail';
 
 const main = async () => {
+   
 
+    const con = await createConnection({
+        type: 'postgres',
+        database: 'redditclone',
+        username: 'postgres',
+        password: 'admin1234',
+        logging: true,
+        synchronize: true,
+        entities:[Post, User]
+    });
     
-    const orm = await MikroORM.init(microConfig);
-    
-    await orm.getMigrator().up();
 
     const app = express();
     
@@ -56,7 +62,7 @@ app.use(
             resolvers: [PostResolver,UserResolver],
             validate:false
         }),
-        context:({req,res}):MyContext=>({em: orm.em, req, res, redis})
+        context:({req,res}):MyContext=>({ req, res, redis})
     })
     apolloServer.applyMiddleware({ app, cors: false, });
     
