@@ -9,7 +9,7 @@ import { MyContext } from 'src/types';
 import { buildSchema } from 'type-graphql';
 import { createConnection } from 'typeorm';
 import { COOKIE_NAME, __prod__ } from './constants';
-import { Post } from './entities/posts';
+import { Post } from './entities/Post';
 import { User } from './entities/User';
 import { PostResolver } from './resolvers/Post';
 import { UserResolver } from "./resolvers/User";
