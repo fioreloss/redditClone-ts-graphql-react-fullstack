@@ -26,7 +26,7 @@ export class PostResolver{
         const qb= getConnection()
             .getRepository(Post)
             .createQueryBuilder("p")
-           // .where('"createdAt">:cursor', { cursor:parseInt(cursor) })
+            // .where('"createdAt">:cursor', { cursor:parseInt(cursor) })
             .orderBy('"createdAt"', "DESC")
             .take(realLimit)
         if (cursor) {

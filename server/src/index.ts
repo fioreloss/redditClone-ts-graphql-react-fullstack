@@ -13,6 +13,7 @@ import { Post } from './entities/Post';
 import { User } from './entities/User';
 import { PostResolver } from './resolvers/Post';
 import { UserResolver } from "./resolvers/User";
+import path from 'path';
 
 const main = async () => {
    
@@ -24,9 +25,10 @@ const main = async () => {
         password: 'admin1234',
         logging: true,
         synchronize: true,
+        migrations:[path.join(__dirname,"./migrations/*")],
         entities:[Post, User]
     });
-    
+    await con.runMigrations();
 
     const app = express();
     
