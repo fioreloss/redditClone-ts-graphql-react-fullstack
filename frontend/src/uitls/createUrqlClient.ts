@@ -1,17 +1,13 @@
-<<<<<<< HEAD
 import { isServer } from './isServer';
 
 import { Post } from './../../../server/src/entities/Post';
 import { PaginatedPosts, VoteMutationVariables } from './../generated/graphql';
-=======
-import { PaginatedPosts } from './../generated/graphql';
->>>>>>> parent of a6e93dbc (fragments)
 import { Resolver } from '@urql/exchange-graphcache';
 
 
 import { cacheExchange } from "@urql/exchange-graphcache"
 import Router from "next/router"
-import { dedupExchange, Exchange, fetchExchange, stringifyVariables } from "urql"
+import { dedupExchange, Exchange, fetchExchange, gql, stringifyVariables } from "urql"
 import { pipe, tap } from "wonka"
 import { LoginMutation, LogoutMutation, MeDocument, MeQuery, RegisterMutation } from "../generated/graphql"
 import { betterUpdateQuery } from "./betterUpdateQuery"
@@ -84,7 +80,6 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
       key: {
         PaginatedPosts: () => null,
       },
-<<<<<<< HEAD
       resolvers: {
         Query: {
           posts: cursorPagination(),
@@ -151,39 +146,6 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
                   return {
                     me: result.login.user
                   }
-=======
-    },
-    updates: {
-      Mutation: {
-        createPost: (_result, args, cache, info) => {
-          const allFields = cache.inspectFields('Query');
-          const fieldInfos = allFields.filter(
-            info => info.fieldName === 'posts'
-          );
-          fieldInfos.forEach((fi) => {
-            cache.invalidate('Query', 'posts', fi.arguments ||{})
-          });
-        },
-        logout: (_result, args, cache, info) => {
-          betterUpdateQuery<LogoutMutation, MeQuery>(
-            cache,
-            { query: MeDocument },
-            _result,
-            ()=>({me:null})
-          )
-        },
-        login: (_result, args, cache, info) => {
-          betterUpdateQuery<LoginMutation, MeQuery>(
-            cache,
-            { query: MeDocument },
-            _result,
-            (result, query) => {
-              if (result.login.errors) {
-                return query
-              } else {
-                return {
-                  me:result.login.user
->>>>>>> parent of a6e93dbc (fragments)
                 }
               }
             )

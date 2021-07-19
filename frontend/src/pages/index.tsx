@@ -16,8 +16,9 @@ const Index = () => {
   const [variables, setVariables]= useState({limit:15,cursor:null as null | string});
   const [{ data,fetching}] = usePostsQuery({variables});
   if (!fetching && !data) {
-    return ;
-    
+    return (
+      <div>data not loading</div>
+    );
   
   }
   return (
@@ -38,7 +39,11 @@ const Index = () => {
             <Flex key={p.id} p={50} shadow="md" borderWidth="1px">
               <UpvoteSection post={p} />
               <Box>
-                <Heading fontSize="xl">{p.title}</Heading>
+                <NextLink href="/post/[id]" as={`/post/${p.id}`}>
+                <Link>
+                  <Heading fontSize="xl">{p.title}</Heading>
+                  </Link>
+                </NextLink>
                 <Text>posted by </Text>{p.creator.username}
                 <Text mt={4}>{p.textSnippet}</Text>
               </Box>

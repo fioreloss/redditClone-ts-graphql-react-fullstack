@@ -99,7 +99,7 @@ let PostResolver = class PostResolver {
         return __awaiter(this, void 0, void 0, function* () {
             const realLimit = Math.min(50, limit);
             const reaLimitPlusOne = realLimit + 1;
-            const replacements = [reaLimitPlusOne, req.session.userId];
+            const replacements = [reaLimitPlusOne];
             if (req.session.userId) {
                 replacements.push(req.session.userId);
             }
@@ -111,17 +111,18 @@ let PostResolver = class PostResolver {
             const posts = yield typeorm_1.getConnection().query(`
             select p.*,
             json_build_object(
-                'id',u.id,
-                'username',u.username,
-                'email',u.email,
-                'createdAt',u."createdAt",
-                'updatedAt',u."updatedAt"
+                'id', u.id,
+                'username', u.username,
+                'email', u.email,
+                'createdAt', u."createdAt",
+                'updatedAt', u."updatedAt"
                 ) creator,
-                ${req.session.userId ? ',(select value from upvote where "userId" = $2 and "postId" = p.id)"voteStatus"' : 'null as "voteStatus"'}
+                ${req.session.userId ? '(select value from upvote where "userId" = $2 and "postId" = p.id) "voteStatus"'
+                : 'null as "voteStatus"'}
                 
             from post p
             inner join public.user u on u.id = p."creatorId"
-            ${cursor ? `where p."createdAt"<$${cursorIdx}` : ""}
+            ${cursor ? `where p."createdAt"< $${cursorIdx}` : ""}
             order by p."createdAt" DESC
             limit $1
             `, replacements);
@@ -132,7 +133,7 @@ let PostResolver = class PostResolver {
         });
     }
     post(id) {
-        return Post_1.Post.findOne(id);
+        return Post_1.Post.findOne(id, { relations: ["creator"] });
     }
     createPost(input, { req }) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -187,7 +188,7 @@ __decorate([
 ], PostResolver.prototype, "posts", null);
 __decorate([
     type_graphql_1.Query(() => Post_1.Post, { nullable: true }),
-    __param(0, type_graphql_1.Arg('id')),
+    __param(0, type_graphql_1.Arg('id', () => type_graphql_1.Int)),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Number]),
     __metadata("design:returntype", Promise)
