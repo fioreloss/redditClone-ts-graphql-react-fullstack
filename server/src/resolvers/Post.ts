@@ -115,7 +115,7 @@ export class PostResolver{
                 'createdAt',u."createdAt",
                 'updatedAt',u."updatedAt"
                 ) creator,
-                ${req.session.userId ? ',(select value from upvote where "userId" = $2 and "postId" = p.id)"voteStatus"': 'null as "voteStatus"'}
+                ${req.session.userId ? '(select value from upvote where "userId" = $2 and "postId" = p.id)"voteStatus"': 'null as "voteStatus"'}
                 
             from post p
             inner join public.user u on u.id = p."creatorId"
