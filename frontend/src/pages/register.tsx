@@ -11,12 +11,9 @@ import { toErrorMap } from '../uitls/toErrorMap';
 
 
 
-
 interface registerProps {
 
 }
-
-
 
 const Register: React.FC<registerProps> = ({ }) => {
     const router = useRouter();
