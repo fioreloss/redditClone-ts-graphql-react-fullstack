@@ -1,3 +1,4 @@
+import { User } from './../entities/User';
 import { Upvote } from "../entities/Upvote";
 import { Arg, Ctx, Field, FieldResolver, InputType, Int, Mutation, ObjectType, Query, Resolver, Root, UseMiddleware } from "type-graphql";
 import { getConnection } from 'typeorm';
@@ -31,9 +32,34 @@ export class PostResolver{
     textSnippet(
         @Root() root:Post
     ) {
-        return root.text.slice(0,50)
-       
+        return root.text.slice(0,50) 
     }
+
+
+    @FieldResolver(() => User)
+    creator(
+        @Root() post: Post,
+        @Ctx(){userLoader}:MyContext
+    ) {
+        return userLoader.load(post.creatorId)
+    }
+
+    @FieldResolver(() => Int, { nullable: true })
+    async voteStatus(
+        @Root() post: Post,
+        @Ctx() {upvoteLoader,req}:MyContext
+    ) {
+        if (!req.session.userId) {
+            return null;
+        }
+        const upvote = await upvoteLoader.load({
+            postId: post.id,
+            userId: req.session.userId
+        });
+        return upvote ? upvote.value : null;
+        }
+
+
     @Mutation(() => Boolean)
     @UseMiddleware(isAuth)
     async vote(
@@ -90,7 +116,7 @@ export class PostResolver{
     async posts(
         @Arg('limit', ()=>Int) limit: number,
         @Arg('cursor', () => String, { nullable: true }) cursor: string | null,
-        @Ctx(){req}: MyContext
+        // @Ctx(){req}: MyContext
     ): Promise<PaginatedPosts>
     {
         const realLimit = Math.min(50, limit);
@@ -98,32 +124,20 @@ export class PostResolver{
         
         const replacements: any[] = [reaLimitPlusOne];
 
-        if (req.session.userId) {
-            replacements.push(req.session.userId);
-        }
-        let cursorIdx = 3;
+       
+       
         if (cursor) {
            
             replacements.push(new Date(parseInt(cursor))); 
-            cursorIdx= replacements.length;
+            
         }
         const posts = await getConnection().query(
             `
-            select p.*,
-            json_build_object(
-                'id', u.id,
-                'username', u.username,
-                'email', u.email,
-                'createdAt', u."createdAt",
-                'updatedAt', u."updatedAt"
-                ) creator,
-                ${req.session.userId ? '(select value from upvote where "userId" = $2 and "postId" = p.id) "voteStatus"'
-                : 'null as "voteStatus"'
-            }
-                
+            select p.*
+          
+            
             from post p
-            inner join public.user u on u.id = p."creatorId"
-            ${cursor ? `where p."createdAt"< $${cursorIdx}` : ""}
+            ${cursor ? `where p."createdAt"< $` : ""}
             order by p."createdAt" DESC
             limit $1
             `,
@@ -141,7 +155,7 @@ export class PostResolver{
     post(
         @Arg('id',()=>Int) id: number): Promise<Post|undefined>
      {
-        return Post.findOne(id, { relations: ["creator"] });
+        return Post.findOne(id);
     }
 
 

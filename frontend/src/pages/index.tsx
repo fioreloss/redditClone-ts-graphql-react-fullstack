@@ -13,11 +13,14 @@ const Index = () => {
 
   const [variables, setVariables] = useState({ limit: 15, cursor: null as null | string });
   
-  const [{ data, fetching }] = usePostsQuery({ variables }); 
+  const [{ data,error, fetching }] = usePostsQuery({ variables }); 
   
   if (!fetching && !data) {
     return (
-      <div>data not loading</div>
+      <div>
+        <div>data not loading</div>
+        <div>{error?.message}</div>
+    </div>
     );
   
   }

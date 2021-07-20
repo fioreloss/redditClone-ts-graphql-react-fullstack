@@ -12,6 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const createUpvoteLoader_1 = require("./utils/createUpvoteLoader");
 const Upvote_1 = require("./entities/Upvote");
 const apollo_server_express_1 = require("apollo-server-express");
 const connect_redis_1 = __importDefault(require("connect-redis"));
@@ -28,6 +29,7 @@ const User_1 = require("./entities/User");
 const Post_2 = require("./resolvers/Post");
 const User_2 = require("./resolvers/User");
 const path_1 = __importDefault(require("path"));
+const createUserLoader_1 = require("./utils/createUserLoader");
 const main = () => __awaiter(void 0, void 0, void 0, function* () {
     const con = yield typeorm_1.createConnection({
         type: 'postgres',
@@ -68,7 +70,11 @@ const main = () => __awaiter(void 0, void 0, void 0, function* () {
             resolvers: [Post_2.PostResolver, User_2.UserResolver],
             validate: false
         }),
-        context: ({ req, res }) => ({ req, res, redis })
+        context: ({ req, res }) => ({
+            req, res, redis,
+            userLoader: createUserLoader_1.createUserLoader(),
+            upvoteLoader: createUpvoteLoader_1.createUpvoteLoader(),
+        })
     });
     apolloServer.applyMiddleware({ app, cors: false, });
     app.listen(4000, () => {

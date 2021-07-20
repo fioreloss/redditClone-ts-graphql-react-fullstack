@@ -1,3 +1,4 @@
+import { createUpvoteLoader } from './utils/createUpvoteLoader';
 import { Upvote } from './entities/Upvote';
 import { ApolloServer } from 'apollo-server-express';
 import connectRedis from 'connect-redis';
@@ -15,6 +16,7 @@ import { User } from './entities/User';
 import { PostResolver } from './resolvers/Post';
 import { UserResolver } from "./resolvers/User";
 import path from 'path';
+import { createUserLoader } from './utils/createUserLoader';
 
 const main = async () => {
    
@@ -66,7 +68,11 @@ app.use(
             resolvers: [PostResolver,UserResolver],
             validate:false
         }),
-        context:({req,res}):MyContext=>({ req, res, redis})
+        context: ({ req, res }): MyContext => ({
+            req, res, redis,
+            userLoader: createUserLoader(),
+            upvoteLoader: createUpvoteLoader(),
+        })
     })
     apolloServer.applyMiddleware({ app, cors: false, });
     
